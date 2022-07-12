@@ -1,0 +1,14 @@
+version: "2"
+services:
+  node:
+    image: "node:8"
+    user: "node"
+    working_dir: /home/aglssin/Documents/dev/my-projects
+    environment:
+      - NODE_ENV=production
+    volumes:
+      - ./:/home/aglssin/Documents/dev/my-projects
+    ports:
+      - "8083"
+    command: > 
+      sh -c "npm run build && npm start"
