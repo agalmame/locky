@@ -9,7 +9,9 @@ interface IUserRoute {
 const user : FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
     fastify.post<IUserRoute>('/', {}, async (request, reply) => {
         const user: User = await createUser(request.body.name, request.body.password, request.body.email);
-        return user;
+        reply.code(201);
+        reply.type('application/json');
+        return reply.send(user);
     });
 }
 
