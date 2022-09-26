@@ -17,7 +17,7 @@ model File {
   size Int?
   type String?
   createdAt DateTime @default(now())
-  updatedAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   user User @relation(fields: [userId], references:[id])
   userId Int @unique
 }
@@ -37,4 +37,23 @@ model User {
   token String
   files   File[]
   profile Profile?
+  tokens Tokens[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Tokens {
+  id Int @id @default(autoincrement())
+  token String
+  user   User    @relation(fields: [userId], references: [id])
+  type TokenTypes @default(Access)
+  expiresAt DateTime
+  userId Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum TokenTypes {
+  Access
+  Refresh
 }
