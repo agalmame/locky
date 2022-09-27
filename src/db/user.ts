@@ -15,6 +15,17 @@ export const createUser = async (name: string, password: string, email: string) 
             token: 'Empty'
         }
     })
+    await prisma.$disconnect()
     
+    return user
+}
+
+export const findUserById = async (id: number): Promise<User | null> => {
+    const user = prisma.user.findUnique({
+        where: {
+            id
+        }
+    })
+    await prisma.$disconnect()
     return user
 }

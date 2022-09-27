@@ -2,6 +2,7 @@ import { User } from "@prisma/client";
 import jwt, { Secret, SignOptions } from 'jsonwebtoken'
 import * as dotenv from 'dotenv'
 import util from 'util'
+import { findUserById } from "../../db/user";
 
 dotenv.config()
 
@@ -9,7 +10,6 @@ export
 
 
 class AuthService {
-
 
     public async generateAccessToken(user: User): Promise<string | undefined>{
 
@@ -24,4 +24,17 @@ class AuthService {
                 });
             });          
     }
+
+    public async verifyAccessToken(token: string): Promise<number> {
+        return new Promise(async (resolve, reject) => {
+            jwt.verify(token, process.env.JWT_SECRET as string,(err, decoded) => {
+                decoded = decoded as {id: number}
+                if (err) {
+                    reject({err})
+                }
+                resolve(parseInt(decoded.id))
+               
+            })
+        });
+    } 
 }
