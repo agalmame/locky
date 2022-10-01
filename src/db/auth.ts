@@ -1,8 +1,9 @@
 import jwt from 'jsonwebtoken'
 import 'dotenv/config'
-import { PrismaClient, User } from '@prisma/client'
+import { PrismaClient, Tokens, TokenTypes, User } from '@prisma/client'
 import { IQuerystring } from '../types/general'
 import bcrypt from 'bcryptjs'
+import {DateTime} from 'luxon';
 
 const prisma = new PrismaClient()
 
@@ -14,6 +15,11 @@ interface TokenInterface {
     name: string | null;
     id: string;
   }
+
+enum TokenType {
+    ACCESS = 'ACCESS',
+    REFRESH = 'REFRESH'
+}
 
 export default TokenInterface;
 
@@ -27,17 +33,30 @@ prisma.$use(async (params, next) => {
 })
 
 export const generateToken = async function(user: User): Promise<string> {
-    const token : string = jwt.sign({ id: user.id.toString() }, jwtSecret, { expiresIn: '1h' });
-    prisma.user.update({
-        where: {
-            id: user.id
-        },
-        data: {
-            token
-        }
-    })
+    const token : string = jwt.sign({ id: user.id.toString() }, jwtSecret, { expiresIn: jwtSecret });
+    // prisma.user.update({
+    //     where: {
+    //         id: user.id
+    //     },
+    //     data: {
+    //         token
+    //     }
+    // })
 
     return token;
+};
+
+export const saveToken = async function(Token: string , userId: number, type: TokenTypes, expiresAt: DateTime): Promise<Tokens> {
+    const token = await prisma.tokens.create({
+        data: {
+            token: Token,
+            userId,
+            type,
+            expiresAt: expiresAt.toJSDate()
+
+        }
+    })
+    return token
 }
 
 export const findByToken = async function( token: string): Promise<User | null| string>  {
@@ -58,7 +77,7 @@ export const findByToken = async function( token: string): Promise<User | null| 
     }});
 };
 
-export const findByCredentials = async (arg : IQuerystring) : Promise<User|Error> => {
+export const findByCredentials = async (arg : IQuerystring) : Promise<User> => {
     const user = await prisma.user.findFirst({ where: { name: arg.username  } });
     if (!user) {
         throw new Error('Unable to login. Wrong username!');

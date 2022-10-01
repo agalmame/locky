@@ -1,6 +1,7 @@
-import { User } from "@prisma/client";
+import { TokenTypes, User } from "@prisma/client";
 import { FastifyPluginAsync, FastifyRequest } from "fastify"
-import { findByCredentials } from "../../db";
+import { DateTime } from "luxon";
+import { findByCredentials, saveToken } from "../../db";
 import { AuthService } from "../../services/auth/authService";
 import { IHeaders, IQuerystring } from '../../types/general'; 
 
@@ -20,12 +21,17 @@ const auth: FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
         const customerHeader = request.headers['h-Custom']
 
         const user = await findByCredentials(request.query)
-        let token: string | undefined;
+        let token: string;
         if (user) {
             token = await new AuthService().generateAccessToken(user as User)
+            //TODO: make time configurable
+            await saveToken(token, user.id, TokenTypes.Access, DateTime.now().plus({hours: 24}))
+            reply.code(200);
+            return reply.send({token});
         }
-        reply.code(200);
-        reply.send({token});
+        reply.code(401);
+        return reply.send({error: 'Invalid credentials'})
+
     })
 
 }
