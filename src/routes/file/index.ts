@@ -39,7 +39,6 @@ const verifyToken = async (request: Record<string, any>, reply: FastifyReply, do
     done(new Error('Unauthorized'));
 }
 
-
 const file : FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
     fastify.get('/', {
         preHandler: fastify.auth([verifyToken]),
