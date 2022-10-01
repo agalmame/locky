@@ -1,5 +1,4 @@
 import fastify, { FastifyInstance, FastifyPluginCallback, FastifyPluginOptions, FastifyRegisterOptions, FastifyReply, FastifyRequest } from "fastify"
-import { findByToken } from "../db/auth";
 import { IHeaders, IQuerystring } from "../types/general"
 // import FastifyAuth from 'fastify-auth'
 

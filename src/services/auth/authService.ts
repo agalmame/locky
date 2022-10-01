@@ -11,7 +11,7 @@ export
 
 class AuthService {
 
-    public async generateAccessToken(user: User): Promise<string | undefined>{
+    public async generateAccessToken(user: User): Promise<string>{
 
         return new Promise((resolve, reject) => {
             jwt.sign(
@@ -19,6 +19,7 @@ class AuthService {
                     process.env.JWT_SECRET as string, 
                     { expiresIn: process.env.TOKEN_EXPIRATION, audience: process.env.APP_URL, issuer: process.env.APP_URL},
                     (err, token) => {
+                        token = token as string
                         if (err) return reject(err);
                         else return resolve(token);
                 });
@@ -28,11 +29,14 @@ class AuthService {
     public async verifyAccessToken(token: string): Promise<number> {
         return new Promise(async (resolve, reject) => {
             jwt.verify(token, process.env.JWT_SECRET as string,(err, decoded) => {
-                decoded = decoded as {id: number}
+                const decode: any = decoded as any
                 if (err) {
-                    reject({err})
+                    return reject({err})
                 }
-                resolve(parseInt(decoded.id))
+                if (!decode?.id) {
+                    return reject({err: 'No id found'})
+                }
+                return resolve(parseInt(decode.id))
                
             })
         });

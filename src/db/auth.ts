@@ -59,23 +59,23 @@ export const saveToken = async function(Token: string , userId: number, type: To
     return token
 }
 
-export const findByToken = async function( token: string): Promise<User | null| string>  {
-    let decoded;
-    try {
-        if (!token) {
-            throw new Error('Missing token header');
-        }
-        decoded = jwt.verify(token, jwtSecret);
-    } catch (error) {
-        let message = 'Unknown Error'
-        if (error instanceof Error) message = error.message
-        return message;
-    }
-    return await prisma.user.findUnique({
-        where: {
-        id: parseInt((decoded as TokenInterface).id),
-    }});
-};
+// export const findByToken = async function( token: string): Promise<User | null| string>  {
+//     let decoded;
+//     try {
+//         if (!token) {
+//             throw new Error('Missing token header');
+//         }
+//         decoded = jwt.verify(token, jwtSecret);
+//     } catch (error) {
+//         let message = 'Unknown Error'
+//         if (error instanceof Error) message = error.message
+//         return message;
+//     }
+//     return await prisma.user.findUnique({
+//         where: {
+//         id: parseInt((decoded as TokenInterface).id),
+//     }});
+// };
 
 export const findByCredentials = async (arg : IQuerystring) : Promise<User> => {
     const user = await prisma.user.findFirst({ where: { name: arg.username  } });
@@ -89,3 +89,12 @@ export const findByCredentials = async (arg : IQuerystring) : Promise<User> => {
     await prisma.$disconnect()
     return user;
 };
+
+export const findToken = async function(token: string): Promise<Tokens | null> {
+    const foundToken = await prisma.tokens.findFirst({
+        where: {
+            token
+        }
+    })
+    return foundToken
+}

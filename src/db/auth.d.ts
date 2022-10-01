@@ -7,4 +7,3 @@ interface TokenInterface {
 }
 export default TokenInterface;
 export declare const generateToken: (user: User) => Promise<string>;
-export declare const findByToken: (token: string) => Promise<User | null | string>;
