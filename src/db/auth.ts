@@ -16,10 +16,6 @@ interface TokenInterface {
     id: string;
   }
 
-enum TokenType {
-    ACCESS = 'ACCESS',
-    REFRESH = 'REFRESH'
-}
 
 export default TokenInterface;
 

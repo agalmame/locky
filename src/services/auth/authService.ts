@@ -1,8 +1,6 @@
 import { User } from "@prisma/client";
 import jwt, { Secret, SignOptions } from 'jsonwebtoken'
 import * as dotenv from 'dotenv'
-import util from 'util'
-import { findUserById } from "../../db/user";
 
 dotenv.config()
 
