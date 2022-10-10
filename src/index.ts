@@ -3,6 +3,7 @@ import 'dotenv/config'
 import closeWithGrace from 'close-with-grace'
 import { AuthService } from './services/auth/authService';
 import { findUserById } from './db/user';
+import { ServerResponse } from 'http';
 
 
 const isProduction = process.env.NODE_ENV === "production";
@@ -31,6 +32,7 @@ const verifyToken = async (request: Record<string, any>, reply: FastifyReply, do
     done();
 }
 server.decorate('verifyToken', verifyToken);
+server.decorate('baseDir', __dirname);
 
 server.addHook('onClose', async (_instance, done) => {
 	closeListeners.uninstall();

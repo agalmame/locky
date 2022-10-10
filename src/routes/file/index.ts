@@ -3,12 +3,13 @@ import { FastifyReply } from "fastify";
 import fs from 'fs';
 import  util from 'util';
 import { pipeline } from 'stream';
+import path from "path";
 
 const pump = util.promisify(pipeline);
 
 
 
-type MyPluginInstance = FastifyInstance & {verifyToken: (request: Record<string, any>, reply: FastifyReply, done: Function)=> Promise<void> };
+type MyPluginInstance = FastifyInstance & {verifyToken: (request: Record<string, any>, reply: FastifyReply, done: Function)=> Promise<void> } & {baseDir: string};
 
 const file  = async (fastify: MyPluginInstance , _opts: FastifyPluginOptions): Promise<void> => {
     fastify.register(require('@fastify/auth'))
@@ -18,7 +19,9 @@ const file  = async (fastify: MyPluginInstance , _opts: FastifyPluginOptions): P
         reply.send({file:'file', user: request.user})
     })
 
-    fastify.post('/', async (req: Record<string, any>, reply) => {
+    fastify.post('/', {
+        preHandler: fastify.auth([fastify.verifyToken]),
+    }, async (req: Record<string, any>, reply) => {
 
         const data = await req.file()
         data.file // stream
@@ -27,7 +30,7 @@ const file  = async (fastify: MyPluginInstance , _opts: FastifyPluginOptions): P
         data.filename
         data.encoding
         data.mimetype
-        await pump(data.file, fs.createWriteStream(data.filename))
+        await pump(data.file, fs.createWriteStream(path.join(fastify.baseDir,'/public/', data.filename)))
       
         reply.send()
     })
